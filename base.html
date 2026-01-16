@@ -57,7 +57,6 @@
         }
         .exit-btn { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); margin-top: 10px; }
 
-        /* ЧАТОВЫЙ БЛОК */
         #chatArea { display: none; flex-direction: column; height: 78dvh; width: 100%; }
         .messages { 
             flex: 1; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 20px; 
@@ -66,10 +65,7 @@
             scroll-behavior: smooth;
         }
         
-        @keyframes msgIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; word-wrap: break-word; font-size: 15px; animation: msgIn 0.2s ease-out forwards; }
         .msg.my { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
@@ -77,10 +73,7 @@
         .msg.sys { align-self: center; background: rgba(255, 77, 77, 0.1); color: #ff4d4d; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 10px; padding: 8px 15px; }
 
         .chat-input { display: flex; gap: 8px; padding-bottom: 5px; }
-        input { 
-            flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--border); 
-            padding: 14px; border-radius: 15px; color: white; outline: none; font-size: 16px; 
-        }
+        input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--border); padding: 14px; border-radius: 15px; color: white; outline: none; font-size: 16px; }
         .send-btn { background: var(--accent); color: black; border: none; border-radius: 15px; width: 55px; font-weight: 900; }
     </style>
 </head>
@@ -94,10 +87,27 @@
         <div id="setupView">
             <h1>CHEL-<span style="color:var(--accent)">CHAT</span></h1>
             <span class="city-subtitle">Челябинск</span>
-            <div class="selection-group"><span class="label-title">Мой пол</span><div class="toggle-container"><div class="chip active">М</div><div class="chip">Ж</div></div></div>
-            <div class="selection-group"><span class="label-title">Мой возраст</span><div class="toggle-container"><div class="chip active">16-18</div><div class="chip">18-30</div><div class="chip">30+</div></div></div>
-            <div class="selection-group"><span class="label-title">Кто нужен</span><div class="toggle-container"><div class="chip active">Любой</div><div class="chip">М</div><div class="chip">Ж</div></div></div>
-            <div class="selection-group"><span class="label-title">Возраст партнера</span><div class="toggle-container"><div class="chip active">Любой</div><div class="chip">16-18</div><div class="chip">18+</div></div></div>
+            
+            <div class="selection-group">
+                <span class="label-title">Мой пол</span>
+                <div class="toggle-container" id="myGender"><div class="chip active">М</div><div class="chip">Ж</div></div>
+            </div>
+            
+            <div class="selection-group">
+                <span class="label-title">Мой возраст</span>
+                <div class="toggle-container" id="myAge"><div class="chip active">14-18</div><div class="chip">18+</div></div>
+            </div>
+            
+            <div class="selection-group">
+                <span class="label-title">Кто нужен</span>
+                <div class="toggle-container" id="wantGender"><div class="chip active">Любой</div><div class="chip">М</div><div class="chip">Ж</div></div>
+            </div>
+            
+            <div class="selection-group">
+                <span class="label-title">Возраст партнера</span>
+                <div class="toggle-container" id="wantAge"><div class="chip active">Любой</div><div class="chip">14-18</div><div class="chip">18+</div></div>
+            </div>
+            
             <button class="main-btn" id="findBtn">Начать поиск</button>
         </div>
 
@@ -136,18 +146,22 @@
         let currentRoomId = null;
         let unsubscribeRoom = null;
 
-        // Фикс для клавиатуры (скролл при фокусе)
         const mInput = document.getElementById('mInput');
         mInput.addEventListener('focus', () => {
             setTimeout(() => {
                 window.scrollTo(0, 0);
-                document.body.scrollTop = 0;
-                document.getElementById('msgBox').scrollTop = document.getElementById('msgBox').scrollHeight;
+                const mb = document.getElementById('msgBox');
+                mb.scrollTop = mb.scrollHeight;
             }, 300);
         });
 
         document.querySelectorAll('.toggle-container').forEach(c => {
-            c.onclick = (e) => { if(e.target.classList.contains('chip')) { c.querySelectorAll('.chip').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); }};
+            c.onclick = (e) => { 
+                if(e.target.classList.contains('chip')) { 
+                    c.querySelectorAll('.chip').forEach(x => x.classList.remove('active')); 
+                    e.target.classList.add('active'); 
+                }
+            };
         });
 
         onAuthStateChanged(auth, u => { if (!u) window.location.href = 'index.html'; });
@@ -155,7 +169,11 @@
         async function send() {
             if (mInput.value.trim() && currentRoomId) {
                 const t = mInput.value; mInput.value = '';
-                await addDoc(collection(db, "rooms", currentRoomId, "messages"), { uid: auth.currentUser.uid, text: t, time: serverTimestamp() });
+                await addDoc(collection(db, "rooms", currentRoomId, "messages"), { 
+                    uid: auth.currentUser.uid, 
+                    text: t, 
+                    time: serverTimestamp() 
+                });
             }
         }
 
@@ -163,21 +181,51 @@
             const el = document.createElement('div');
             el.className = 'msg sys'; el.innerText = text;
             const mb = document.getElementById('msgBox');
-            mb.appendChild(el);
-            mb.scrollTop = mb.scrollHeight;
+            mb.appendChild(el); mb.scrollTop = mb.scrollHeight;
         }
+
+        function getVal(id) { return document.getElementById(id).querySelector('.active').innerText; }
 
         async function findPartner() {
             const myId = auth.currentUser.uid;
+            const myGender = getVal('myGender');
+            const myAge = getVal('myAge');
+            const wantGender = getVal('wantGender');
+            const wantAge = getVal('wantAge');
+
+            // Ищем всех в очереди
             const q = query(collection(db, "queue"), where("__name__", "!=", myId));
             const snap = await getDocs(q);
-            if (!snap.empty) {
-                const pId = snap.docs[0].id;
-                const room = await addDoc(collection(db, "rooms"), { users: [myId, pId], createdAt: serverTimestamp() });
-                await deleteDoc(doc(db, "queue", pId));
+            
+            let foundPartnerId = null;
+
+            for (let d of snap.docs) {
+                const data = d.data();
+                
+                // Проверяем: Подходит ли ОН нам?
+                const heMatchesMe = (wantGender === 'Любой' || wantGender === data.myGender) && 
+                                    (wantAge === 'Любой' || wantAge === data.myAge);
+                
+                // Проверяем: Подходим ли МЫ ему?
+                const iMatchHim = (data.wantGender === 'Любой' || data.wantGender === myGender) && 
+                                  (data.wantAge === 'Любой' || data.wantAge === myAge);
+
+                if (heMatchesMe && iMatchHim) {
+                    foundPartnerId = d.id;
+                    break;
+                }
+            }
+
+            if (foundPartnerId) {
+                const room = await addDoc(collection(db, "rooms"), { users: [myId, foundPartnerId], createdAt: serverTimestamp() });
+                await deleteDoc(doc(db, "queue", foundPartnerId));
                 joinRoom(room.id);
             } else {
-                await setDoc(doc(db, "queue", myId), { time: serverTimestamp() });
+                await setDoc(doc(db, "queue", myId), { 
+                    myGender, myAge, wantGender, wantAge, 
+                    time: serverTimestamp() 
+                });
+                
                 unsubscribeRoom = onSnapshot(query(collection(db, "rooms"), where("users", "array-contains", myId)), s => {
                     s.docChanges().forEach(c => { if (c.type === "added") { deleteDoc(doc(db, "queue", myId)); joinRoom(c.doc.id); }});
                 });
@@ -200,8 +248,7 @@
                         el.className = `msg ${d.uid === auth.currentUser.uid ? 'my' : 'partner'}`;
                         el.innerText = d.text;
                         const mb = document.getElementById('msgBox');
-                        mb.appendChild(el);
-                        mb.scrollTop = mb.scrollHeight;
+                        mb.appendChild(el); mb.scrollTop = mb.scrollHeight;
                     }
                 });
             });
