@@ -2,12 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CHEL-CHAT | Chat</title>
     <style>
         :root { 
             --accent: #00C8FF; 
-            --purple: #7000ff; 
             --glass: rgba(255, 255, 255, 0.05); 
             --border: rgba(255, 255, 255, 0.1); 
         }
@@ -17,7 +16,7 @@
             font-family: 'Segoe UI', Roboto, sans-serif; 
             background: #020202; color: white; 
             display: flex; justify-content: center; align-items: flex-start;
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100dvh; overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -27,77 +26,62 @@
         .glass-card { 
             background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border); border-radius: 35px; 
-            padding: 20px; width: 90%; max-width: 500px; 
-            margin-top: 20px; margin-bottom: 20px;
+            padding: 20px; width: 92%; max-width: 500px; 
+            margin: 15px 0;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;
+            display: flex; flex-direction: column;
         }
 
-        /* ИСПРАВЛЕННАЯ НАВИГАЦИЯ */
-        .top-nav {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 5px;
-        }
-
+        .top-nav { display: flex; justify-content: flex-end; margin-bottom: 5px; }
         .settings-link { 
-            background: rgba(255, 255, 255, 0.07);
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            color: var(--accent); 
-            text-decoration: none; 
-            font-size: 10px; 
-            font-weight: 800; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.2s;
+            background: rgba(255, 255, 255, 0.07); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border);
+            color: var(--accent); text-decoration: none; font-size: 10px; font-weight: 800; text-transform: uppercase;
         }
-        .settings-link:active { transform: scale(0.95); background: rgba(0, 200, 255, 0.1); }
 
-        h1 { font-size: 26px; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin: 10px 0 5px 0; }
-        .city-subtitle { display: block; text-align: center; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; opacity: 0.4; margin-bottom: 25px; font-weight: 800; }
+        h1 { font-size: 26px; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin: 5px 0; }
+        .city-subtitle { display: block; text-align: center; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; opacity: 0.4; margin-bottom: 20px; font-weight: 800; }
 
-        .selection-group { margin-bottom: 18px; width: 100%; }
+        .selection-group { margin-bottom: 15px; width: 100%; }
         .label-title { display: block; font-size: 10px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1.5px; }
         
         .toggle-container { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .chip { 
             padding: 12px 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
-            border-radius: 12px; cursor: pointer; transition: 0.2s; 
-            font-size: 13px; font-weight: 600; flex: 1; min-width: 60px; text-align: center; user-select: none; 
+            border-radius: 12px; cursor: pointer; font-size: 13px; font-weight: 600; flex: 1; min-width: 60px; text-align: center; 
         }
-        .chip.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 5px 15px rgba(0, 200, 255, 0.2); }
+        .chip.active { background: var(--accent); color: black; border-color: var(--accent); }
 
         .main-btn { 
             width: 100%; padding: 18px; background: #fff; color: #000; border: none; 
-            border-radius: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 14px; margin-top: 10px;
+            border-radius: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; font-size: 14px;
         }
-        .exit-btn { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); }
+        .exit-btn { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); margin-top: 10px; }
 
-        /* --- ЧАТ --- */
-        #chatArea { display: none; flex-direction: column; height: 75vh; max-height: 600px; width: 100%; }
+        /* ЧАТОВЫЙ БЛОК */
+        #chatArea { display: none; flex-direction: column; height: 78dvh; width: 100%; }
         .messages { 
             flex: 1; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 20px; 
-            padding: 15px; margin: 15px 0; border: 1px solid var(--border); 
-            display: flex; flex-direction: column; gap: 10px; 
+            padding: 15px; margin: 10px 0; border: 1px solid var(--border); 
+            display: flex; flex-direction: column; gap: 8px;
+            scroll-behavior: smooth;
         }
         
         @keyframes msgIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .msg { padding: 10px 14px; border-radius: 18px; max-width: 85%; word-wrap: break-word; font-size: 15px; animation: msgIn 0.3s ease-out forwards; }
+        .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; word-wrap: break-word; font-size: 15px; animation: msgIn 0.2s ease-out forwards; }
         .msg.my { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
         .msg.partner { align-self: flex-start; background: rgba(255,255,255,0.12); color: #fff; border-bottom-left-radius: 4px; }
-        .msg.sys { align-self: center; background: rgba(255, 77, 77, 0.1); color: #ff4d4d; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 10px; padding: 8px 15px; border: 1px solid rgba(255, 77, 77, 0.2); margin: 5px 0; }
+        .msg.sys { align-self: center; background: rgba(255, 77, 77, 0.1); color: #ff4d4d; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 10px; padding: 8px 15px; }
 
-        .chat-input { display: flex; gap: 8px; }
+        .chat-input { display: flex; gap: 8px; padding-bottom: 5px; }
         input { 
             flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--border); 
             padding: 14px; border-radius: 15px; color: white; outline: none; font-size: 16px; 
         }
-        .send-btn { background: var(--accent); color: black; border: none; border-radius: 15px; width: 55px; font-weight: 900; cursor: pointer; }
+        .send-btn { background: var(--accent); color: black; border: none; border-radius: 15px; width: 55px; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -118,13 +102,13 @@
         </div>
 
         <div id="chatArea">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 5px;">
-                <span id="partnerStatus" style="color:var(--accent); font-weight:800; font-size: 12px; letter-spacing: 1px;">ПОИСК...</span>
-                <button id="leaveChatBtn" style="display:none; background:none; border:none; color:#ff4d4d; font-weight:800; font-size:11px; text-transform:uppercase;">Выйти</button>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="partnerStatus" style="color:var(--accent); font-weight:800; font-size: 12px;">ПОИСК...</span>
+                <button id="leaveChatBtn" style="display:none; background:none; border:none; color:#ff4d4d; font-weight:800; font-size:11px;">Выйти</button>
             </div>
             <div class="messages" id="msgBox"></div>
             <div class="chat-input" id="inputRow" style="display:none;">
-                <input type="text" id="mInput" placeholder="Текст сообщения..." autocomplete="off">
+                <input type="text" id="mInput" placeholder="Сообщение..." autocomplete="off" enterkeyhint="send">
                 <button class="send-btn" id="sendBtn">></button>
             </div>
             <button class="main-btn exit-btn" id="cancelSearchBtn">Отмена</button>
@@ -152,6 +136,16 @@
         let currentRoomId = null;
         let unsubscribeRoom = null;
 
+        // Фикс для клавиатуры (скролл при фокусе)
+        const mInput = document.getElementById('mInput');
+        mInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.getElementById('msgBox').scrollTop = document.getElementById('msgBox').scrollHeight;
+            }, 300);
+        });
+
         document.querySelectorAll('.toggle-container').forEach(c => {
             c.onclick = (e) => { if(e.target.classList.contains('chip')) { c.querySelectorAll('.chip').forEach(x => x.classList.remove('active')); e.target.classList.add('active'); }};
         });
@@ -159,9 +153,8 @@
         onAuthStateChanged(auth, u => { if (!u) window.location.href = 'index.html'; });
 
         async function send() {
-            const input = document.getElementById('mInput');
-            if (input.value.trim() && currentRoomId) {
-                const t = input.value; input.value = '';
+            if (mInput.value.trim() && currentRoomId) {
+                const t = mInput.value; mInput.value = '';
                 await addDoc(collection(db, "rooms", currentRoomId, "messages"), { uid: auth.currentUser.uid, text: t, time: serverTimestamp() });
             }
         }
@@ -230,7 +223,7 @@
         };
 
         document.getElementById('sendBtn').onclick = send;
-        document.getElementById('mInput').onkeydown = (e) => { if (e.key === 'Enter') send(); };
+        mInput.onkeydown = (e) => { if (e.key === 'Enter') send(); };
         document.getElementById('cancelSearchBtn').onclick = async () => { if(auth.currentUser) await deleteDoc(doc(db, "queue", auth.currentUser.uid)); location.reload(); };
         document.getElementById('leaveChatBtn').onclick = async () => { if (currentRoomId) await deleteDoc(doc(db, "rooms", currentRoomId)); location.reload(); };
     </script>
