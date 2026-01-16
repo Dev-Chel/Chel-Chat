@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEL-CHAT | Welcome</title>
+    <style>
+        :root { --accent: #00C8FF; --purple: #7000ff; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #020202; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(120px); }
+        .blob1 { position: absolute; width: 600px; height: 600px; top: -100px; left: -100px; background: var(--accent); opacity: 0.15; border-radius: 50%; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 40px; padding: 60px 40px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.9); }
+        h1 { font-size: 32px; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 10px; }
+        .main-btn { width: 100%; padding: 20px; background: #fff; color: #000; border: none; border-radius: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.4s; }
+        .main-btn:hover { background: var(--accent); color: #fff; transform: translateY(-3px); }
+    </style>
+</head>
+<body>
+    <div class="bg-blobs"><div class="blob1"></div></div>
+    <div class="glass-card fade-in">
+        <span style="color:var(--accent); letter-spacing: 5px; font-weight: 800; font-size: 12px;">74 REGION</span>
+        <h1>CHEL-<span style="color:var(--accent)">CHAT</span></h1>
+        <p style="opacity: 0.5; font-size: 14px; margin-bottom: 30px;">Анонимный чат Челябинска</p>
+        <button class="main-btn" id="loginBtn">Войти в чат</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBiuZsdElE0Sg5P4OptxVBQrB_2FuETT1g",
+            authDomain: "chel-chat.firebaseapp.com",
+            projectId: "chel-chat",
+            storageBucket: "chel-chat.firebasestorage.app",
+            messagingSenderId: "648341004130",
+            appId: "1:648341004130:web:30d977f1b67bdbdc7b163b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, user => {
+            if (user) window.location.href = 'base.html';
+        });
+
+        document.getElementById('loginBtn').onclick = () => {
+            signInAnonymously(auth).catch(err => alert("Ошибка: " + err.message));
+        };
+    </script>
+</body>
+</html>

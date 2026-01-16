@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEL-CHAT | Settings</title>
+    <style>
+        :root { --accent: #00C8FF; --purple: #7000ff; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #020202; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        /* Анимация появления */
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Задний фон с блобами */
+        .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(120px); }
+        .blob1 { position: absolute; width: 600px; height: 600px; top: -100px; left: -100px; background: var(--accent); opacity: 0.1; border-radius: 50%; }
+        
+        /* Стеклянная карточка */
+        .glass-card { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 40px; padding: 40px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.9); }
+        
+        h2 { text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; font-weight: 800; }
+        
+        /* Поле ввода */
+        input { width: 100%; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; color: white; margin-bottom: 20px; outline: none; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        
+        /* Кнопки */
+        .main-btn { width: 100%; padding: 18px; background: #fff; color: #000; border: none; border-radius: 15px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.4s; margin-bottom: 10px; }
+        .main-btn:hover { background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 200, 255, 0.3); }
+        
+        .btn-out { background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; margin-top: 15px; }
+        .btn-out:hover { background: #ff4d4d; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="bg-blobs"><div class="blob1"></div></div>
+    
+    <div class="glass-card fade-in">
+        <h2>CHEL-<span style="color:var(--accent)">SETTINGS</span></h2>
+        
+        <input type="text" id="nameInput" placeholder="Твой секретный ник">
+        
+        <button class="main-btn" id="saveBtn">Сохранить</button>
+        
+        <button class="main-btn" style="background:rgba(255,255,255,0.1); color:white;" onclick="location.href='base.html'">Назад</button>
+        
+        <button class="main-btn btn-out" id="logoutBtn">Удалить сессию</button>
+    </div>
+
+<script type="module">
+    // Импорты Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // Твой Firebase конфиг
+    const firebaseConfig = {
+        apiKey: "AIzaSyBiuZsdElE0Sg5P4OptxVBQrB_2FuETT1g",
+        authDomain: "chel-chat.firebaseapp.com",
+        projectId: "chel-chat",
+        storageBucket: "chel-chat.firebasestorage.app",
+        messagingSenderId: "648341004130",
+        appId: "1:648341004130:web:30d977f1b67bdbdc7b163b",
+        measurementId: "G-6PRZPWYL26"
+    };
+
+    // Инициализация сервисов
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+
+    // Проверка авторизации и загрузка текущего ника
+    onAuthStateChanged(auth, async u => {
+        if(!u) {
+            window.location.href='index.html';
+        } else {
+            const snap = await getDoc(doc(db, "users", u.uid));
+            if(snap.exists()) {
+                document.getElementById('nameInput').value = snap.data().name || "";
+            }
+        }
+    });
+
+    // Сохранение ника в Firestore
+    document.getElementById('saveBtn').onclick = async () => {
+        const newName = document.getElementById('nameInput').value;
+        if(!newName.trim()) return alert("Введите ник");
+        
+        if(auth.currentUser) {
+            try {
+                await setDoc(doc(db, "users", auth.currentUser.uid), { name: newName }, { merge: true });
+                alert("Ник успешно сохранен!");
+            } catch (e) {
+                alert("Ошибка сохранения: " + e.message);
+            }
+        }
+    };
+
+    // Выход из аккаунта
+    document.getElementById('logoutBtn').onclick = () => { 
+        if(confirm("Вы уверены, что хотите выйти?")) {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            });
+        }
+    };
+</script>
+</body>
+</html>

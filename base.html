@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHEL-CHAT | Search</title>
+    <style>
+        :root { --accent: #00C8FF; --purple: #7000ff; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #020202; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(120px); }
+        .blob1 { position: absolute; width: 600px; height: 600px; top: -100px; left: -100px; background: var(--accent); opacity: 0.15; border-radius: 50%; animation: pulse 8s infinite alternate; }
+        .blob2 { position: absolute; width: 500px; height: 500px; bottom: -100px; right: -100px; background: var(--purple); opacity: 0.15; border-radius: 50%; animation: pulse 8s infinite alternate-reverse; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        
+        .glass-card { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 40px; padding: 40px; width: 95%; max-width: 650px; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.9); }
+        .settings-link { position: absolute; top: 30px; right: 40px; color: var(--accent); text-decoration: none; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; transition: 0.3s; z-index: 10; }
+        .settings-link:hover { opacity: 1; transform: scale(1.05); }
+
+        h1 { font-size: 26px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; text-align: center; margin-top: 10px; }
+        .city-subtitle { display: block; text-align: center; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; opacity: 0.4; margin-bottom: 30px; font-weight: 800; }
+        
+        .selection-group { margin-bottom: 25px; }
+        .label-title { display: block; font-size: 11px; color: var(--accent); font-weight: 800; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 2px; }
+        .toggle-container { display: flex; gap: 10px; flex-wrap: wrap; }
+        .chip { padding: 12px 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 600; flex: 1; text-align: center; user-select: none; }
+        .chip.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 0 20px rgba(0, 200, 255, 0.4); }
+
+        .main-btn { width: 100%; padding: 20px; background: #fff; color: #000; border: none; border-radius: 18px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.4s; margin-top: 10px; }
+        .main-btn:hover { background: var(--accent); color: #fff; transform: translateY(-3px); }
+        .exit-btn { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); margin-top: 15px; }
+
+        #chatArea { display: none; flex-direction: column; height: 500px; animation: fadeIn 0.5s ease; }
+        .messages { flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 20px; padding: 20px; margin: 15px 0; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; padding-right: 10px; }
+        .chat-input { display: flex; gap: 10px; }
+        input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 15px; border-radius: 15px; color: white; outline: none; }
+        
+        .msg { padding: 10px 18px; border-radius: 18px; max-width: 80%; word-wrap: break-word; font-size: 14px; line-height: 1.4; animation: fadeIn 0.3s ease; }
+        .msg.my { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
+        .msg.partner { align-self: flex-start; background: rgba(255,255,255,0.1); color: #fff; border-bottom-left-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="bg-blobs"><div class="blob1"></div><div class="blob2"></div></div>
+    
+    <div class="glass-card fade-in">
+        <a href="settings.html" class="settings-link" id="settingsLink">SETTINGS ⚙️</a>
+
+        <div id="setupView">
+            <h1>CHEL-<span style="color:var(--accent)">SEARCH</span></h1>
+            <span class="city-subtitle">Челябинск</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <div class="selection-group">
+                        <span class="label-title">Мой пол</span>
+                        <div class="toggle-container" id="mySex">
+                            <div class="chip active">М</div><div class="chip">Ж</div>
+                        </div>
+                    </div>
+                    <div class="selection-group">
+                        <span class="label-title">Мой возраст</span>
+                        <div class="toggle-container" id="myAge">
+                            <div class="chip active">16-18</div><div class="chip">18-31</div><div class="chip">32-45</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="selection-group">
+                        <span class="label-title">Кто нужен</span>
+                        <div class="toggle-container" id="targetSex">
+                            <div class="chip active">Любой</div><div class="chip">М</div><div class="chip">Ж</div>
+                        </div>
+                    </div>
+                    <div class="selection-group">
+                        <span class="label-title">Возраст</span>
+                        <div class="toggle-container" id="targetAge">
+                            <div class="chip active">Любой</div><div class="chip">16-18</div><div class="chip">18-31</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="main-btn" id="findBtn">Начать поиск</button>
+        </div>
+
+        <div id="chatArea">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="partnerName" style="color:var(--accent); font-weight:800; letter-spacing:2px; font-size: 14px;">CHEL-SCANNING...</span>
+                <button id="leaveChatBtn" style="display:none; background:none; border:none; color:#ff4d4d; font-weight:800; cursor:pointer; font-size:10px; text-transform:uppercase;">Покинуть чат</button>
+            </div>
+            <div class="messages" id="msgBox"></div>
+            <div class="chat-input" id="inputRow" style="display:none;">
+                <input type="text" id="mInput" placeholder="Напишите сообщение...">
+                <button class="main-btn" id="sendBtn" style="width: auto; padding: 0 30px; margin: 0;">></button>
+            </div>
+            <button class="main-btn exit-btn" id="cancelSearchBtn">Отменить поиск</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query, where, getDocs, deleteDoc, addDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBiuZsdElE0Sg5P4OptxVBQrB_2FuETT1g",
+            authDomain: "chel-chat.firebaseapp.com",
+            projectId: "chel-chat",
+            storageBucket: "chel-chat.firebasestorage.app",
+            messagingSenderId: "648341004130",
+            appId: "1:648341004130:web:30d977f1b67bdbdc7b163b",
+            measurementId: "G-6PRZPWYL26"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentRoomId = null;
+        let unsubscribeRoom = null;
+        let unsubscribeMessages = null;
+        let unsubscribeStatus = null;
+
+        const setupView = document.getElementById('setupView'), chatArea = document.getElementById('chatArea'),
+              partnerName = document.getElementById('partnerName'), leaveBtn = document.getElementById('leaveChatBtn'),
+              cancelBtn = document.getElementById('cancelSearchBtn'), inputRow = document.getElementById('inputRow'),
+              mInput = document.getElementById('mInput'), msgBox = document.getElementById('msgBox'),
+              sendBtn = document.getElementById('sendBtn'), settingsLink = document.getElementById('settingsLink');
+
+        // ОЖИВЛЯЕМ КНОПКИ ВЫБОРА (CHIPS)
+        document.querySelectorAll('.toggle-container').forEach(container => {
+            container.onclick = (e) => {
+                if(e.target.classList.contains('chip')) {
+                    container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                    e.target.classList.add('active');
+                }
+            };
+        });
+
+        onAuthStateChanged(auth, u => { if (!u) window.location.href = 'index.html'; });
+
+        async function findPartner() {
+            const myId = auth.currentUser.uid;
+            const q = query(collection(db, "queue"), where("__name__", "!=", myId));
+            const snap = await getDocs(q);
+
+            if (!snap.empty) {
+                const pId = snap.docs[0].id;
+                const room = await addDoc(collection(db, "rooms"), { users: [myId, pId], createdAt: serverTimestamp() });
+                await deleteDoc(doc(db, "queue", pId));
+                joinRoom(room.id);
+            } else {
+                await setDoc(doc(db, "queue", myId), { time: serverTimestamp() });
+                unsubscribeRoom = onSnapshot(query(collection(db, "rooms"), where("users", "array-contains", myId)), s => {
+                    s.docChanges().forEach(c => { if (c.type === "added") { deleteDoc(doc(db, "queue", myId)); joinRoom(c.doc.id); }});
+                });
+            }
+        }
+
+        function joinRoom(rid) {
+            currentRoomId = rid;
+            partnerName.innerText = "СОБЕСЕДНИК НАЙДЕН";
+            inputRow.style.display = 'flex'; leaveBtn.style.display = 'block'; cancelBtn.style.display = 'none';
+            if (unsubscribeRoom) unsubscribeRoom();
+
+            unsubscribeMessages = onSnapshot(query(collection(db, "rooms", rid, "messages"), orderBy("time")), s => {
+                s.docChanges().forEach(c => {
+                    if (c.type === "added") {
+                        const d = c.doc.data();
+                        const el = document.createElement('div');
+                        el.className = `msg ${d.uid === auth.currentUser.uid ? 'my' : 'partner'}`;
+                        el.innerText = d.text;
+                        msgBox.appendChild(el);
+                        msgBox.scrollTop = msgBox.scrollHeight;
+                    }
+                });
+            });
+
+            unsubscribeStatus = onSnapshot(doc(db, "rooms", rid), s => {
+                if (!s.exists()) {
+                    partnerName.innerText = "СОБЕСЕДНИК ОТКЛЮЧИЛСЯ";
+                    partnerName.style.color = "#ff4d4d";
+                    inputRow.style.display = 'none';
+                    if(unsubscribeMessages) unsubscribeMessages();
+                }
+            });
+        }
+
+        async function send() {
+            if (mInput.value.trim() && currentRoomId) {
+                const t = mInput.value; mInput.value = '';
+                await addDoc(collection(db, "rooms", currentRoomId, "messages"), { uid: auth.currentUser.uid, text: t, time: serverTimestamp() });
+            }
+        }
+
+        document.getElementById('findBtn').onclick = () => { 
+            setupView.style.display = 'none'; 
+            settingsLink.style.display = 'none'; 
+            chatArea.style.display = 'flex'; 
+            findPartner(); 
+        };
+
+        sendBtn.onclick = send;
+        mInput.onkeydown = e => { if (e.key === 'Enter') send(); };
+
+        cancelBtn.onclick = async () => { 
+            if(auth.currentUser) await deleteDoc(doc(db, "queue", auth.currentUser.uid)); 
+            location.reload(); 
+        };
+
+        leaveBtn.onclick = async () => { 
+            if (confirm("Выйти из чата?")) { 
+                if (currentRoomId) await deleteDoc(doc(db, "rooms", currentRoomId)); 
+                location.reload(); 
+            }
+        };
+    </script>
+</body>
+</html>
