@@ -18,6 +18,7 @@
             background: #020202; color: white; 
             display: flex; justify-content: center; align-items: flex-start;
             min-height: 100vh; overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; filter: blur(100px); }
@@ -26,14 +27,34 @@
         .glass-card { 
             background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--border); border-radius: 35px; 
-            padding: 25px; width: 90%; max-width: 500px; 
-            margin-top: 30px; margin-bottom: 30px;
+            padding: 20px; width: 90%; max-width: 500px; 
+            margin-top: 20px; margin-bottom: 20px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative;
         }
 
-        .settings-link { position: absolute; top: 25px; right: 25px; color: var(--accent); text-decoration: none; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        /* ИСПРАВЛЕННАЯ НАВИГАЦИЯ */
+        .top-nav {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+        }
 
-        h1 { font-size: 24px; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin: 10px 0 5px 0; }
+        .settings-link { 
+            background: rgba(255, 255, 255, 0.07);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--accent); 
+            text-decoration: none; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .settings-link:active { transform: scale(0.95); background: rgba(0, 200, 255, 0.1); }
+
+        h1 { font-size: 26px; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin: 10px 0 5px 0; }
         .city-subtitle { display: block; text-align: center; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; opacity: 0.4; margin-bottom: 25px; font-weight: 800; }
 
         .selection-group { margin-bottom: 18px; width: 100%; }
@@ -45,7 +66,7 @@
             border-radius: 12px; cursor: pointer; transition: 0.2s; 
             font-size: 13px; font-weight: 600; flex: 1; min-width: 60px; text-align: center; user-select: none; 
         }
-        .chip.active { background: var(--accent); color: black; border-color: var(--accent); }
+        .chip.active { background: var(--accent); color: black; border-color: var(--accent); box-shadow: 0 5px 15px rgba(0, 200, 255, 0.2); }
 
         .main-btn { 
             width: 100%; padding: 18px; background: #fff; color: #000; border: none; 
@@ -54,7 +75,7 @@
         .exit-btn { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.2); }
 
         /* --- ЧАТ --- */
-        #chatArea { display: none; flex-direction: column; height: 80vh; max-height: 600px; width: 100%; }
+        #chatArea { display: none; flex-direction: column; height: 75vh; max-height: 600px; width: 100%; }
         .messages { 
             flex: 1; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 20px; 
             padding: 15px; margin: 15px 0; border: 1px solid var(--border); 
@@ -69,20 +90,22 @@
         .msg { padding: 10px 14px; border-radius: 18px; max-width: 85%; word-wrap: break-word; font-size: 15px; animation: msgIn 0.3s ease-out forwards; }
         .msg.my { align-self: flex-end; background: var(--accent); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
         .msg.partner { align-self: flex-start; background: rgba(255,255,255,0.12); color: #fff; border-bottom-left-radius: 4px; }
-        .msg.sys { align-self: center; background: rgba(255, 77, 77, 0.15); color: #ff4d4d; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 8px; animation: none; }
+        .msg.sys { align-self: center; background: rgba(255, 77, 77, 0.1); color: #ff4d4d; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 10px; padding: 8px 15px; border: 1px solid rgba(255, 77, 77, 0.2); margin: 5px 0; }
 
         .chat-input { display: flex; gap: 8px; }
         input { 
             flex: 1; background: rgba(255,255,255,0.07); border: 1px solid var(--border); 
             padding: 14px; border-radius: 15px; color: white; outline: none; font-size: 16px; 
         }
-        .send-btn { background: var(--accent); color: black; border: none; border-radius: 15px; width: 50px; font-weight: 900; cursor: pointer; }
+        .send-btn { background: var(--accent); color: black; border: none; border-radius: 15px; width: 55px; font-weight: 900; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="bg-blobs"><div class="blob1"></div></div>
     <div class="glass-card">
-        <a href="settings.html" class="settings-link" id="settingsLink">Настройки ⚙️</a>
+        <div class="top-nav" id="navBlock">
+            <a href="settings.html" class="settings-link">Настройки ⚙️</a>
+        </div>
 
         <div id="setupView">
             <h1>CHEL-<span style="color:var(--accent)">CHAT</span></h1>
@@ -95,13 +118,13 @@
         </div>
 
         <div id="chatArea">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span id="partnerStatus" style="color:var(--accent); font-weight:800; font-size: 12px;">ПОИСК...</span>
-                <button id="leaveChatBtn" style="display:none; background:none; border:none; color:#ff4d4d; font-weight:800; font-size:11px;">ВЫЙТИ</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 5px;">
+                <span id="partnerStatus" style="color:var(--accent); font-weight:800; font-size: 12px; letter-spacing: 1px;">ПОИСК...</span>
+                <button id="leaveChatBtn" style="display:none; background:none; border:none; color:#ff4d4d; font-weight:800; font-size:11px; text-transform:uppercase;">Выйти</button>
             </div>
             <div class="messages" id="msgBox"></div>
             <div class="chat-input" id="inputRow" style="display:none;">
-                <input type="text" id="mInput" placeholder="Сообщение..." autocomplete="off">
+                <input type="text" id="mInput" placeholder="Текст сообщения..." autocomplete="off">
                 <button class="send-btn" id="sendBtn">></button>
             </div>
             <button class="main-btn exit-btn" id="cancelSearchBtn">Отмена</button>
@@ -146,8 +169,9 @@
         function addSysMsg(text) {
             const el = document.createElement('div');
             el.className = 'msg sys'; el.innerText = text;
-            document.getElementById('msgBox').appendChild(el);
-            document.getElementById('msgBox').scrollTop = document.getElementById('msgBox').scrollHeight;
+            const mb = document.getElementById('msgBox');
+            mb.appendChild(el);
+            mb.scrollTop = mb.scrollHeight;
         }
 
         async function findPartner() {
@@ -182,8 +206,9 @@
                         const el = document.createElement('div');
                         el.className = `msg ${d.uid === auth.currentUser.uid ? 'my' : 'partner'}`;
                         el.innerText = d.text;
-                        document.getElementById('msgBox').appendChild(el);
-                        document.getElementById('msgBox').scrollTop = document.getElementById('msgBox').scrollHeight;
+                        const mb = document.getElementById('msgBox');
+                        mb.appendChild(el);
+                        mb.scrollTop = mb.scrollHeight;
                     }
                 });
             });
@@ -199,7 +224,7 @@
 
         document.getElementById('findBtn').onclick = () => { 
             document.getElementById('setupView').style.display = 'none'; 
-            document.getElementById('settingsLink').style.display = 'none'; 
+            document.getElementById('navBlock').style.display = 'none'; 
             document.getElementById('chatArea').style.display = 'flex'; 
             findPartner(); 
         };
